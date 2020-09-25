@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Romax
+namespace IntegrityCheck
 {
     public class IntegrityException : Exception
     {

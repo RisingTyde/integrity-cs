@@ -16,7 +16,7 @@ The full set of functions is:
     Integrity.CheckIsValidNumber(variousOverloadedTypes d, params object[] mesageArgs)
     Integrity.CheckIsValidNumberOrNull(variousOverloadedTypes d, params object[] mesageArgs)
 
-    Integrity.fail((params object[] mesageArgs)
+    Integrity.Fail((params object[] mesageArgs)
 ```
 ### Exceptions
 

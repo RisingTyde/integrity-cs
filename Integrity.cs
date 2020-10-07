@@ -200,19 +200,19 @@ namespace IntegrityCheck
         /// <exception cref="InvalidOperationException">Raised if d is NaN, +/-Infinity</exception>
         public static void CheckIsValidNumber(float d, params object[] mesageArgs)
         {
-            if (Double.IsNaN(d))
+            if (float.IsNaN(d))
             {
                 string text = Integrity.getMessage("NaN", mesageArgs);
                 throw new InvalidOperationException(text);
             }
 
-            if (Double.IsPositiveInfinity(d))
+            if (float.IsPositiveInfinity(d))
             {
                 string text = Integrity.getMessage("+Infinity", mesageArgs);
                 throw new InvalidOperationException(text);
             }
 
-            if (Double.IsNegativeInfinity(d))
+            if (float.IsNegativeInfinity(d))
             {
                 string text = Integrity.getMessage("-Infinity", mesageArgs);
                 throw new InvalidOperationException(text);
@@ -233,22 +233,21 @@ namespace IntegrityCheck
                 throw new NullReferenceException(Integrity.getMessage(nullPointerDefaultMessage, mesageArgs));
             }
 
-            if (Double.IsNaN((double)d))
+            float nonNullD = (float) d;
+
+            if (float.IsNaN(nonNullD))
             {
-                string text = Integrity.getMessage("NaN", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("NaN", mesageArgs));
             }
 
-            if (Double.IsPositiveInfinity((double)d))
+            if (float.IsPositiveInfinity(nonNullD))
             {
-                string text = Integrity.getMessage("+Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("+Infinity", mesageArgs));
             }
 
-            if (Double.IsNegativeInfinity((double)d))
+            if (float.IsNegativeInfinity(nonNullD))
             {
-                string text = Integrity.getMessage("-Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("-Infinity", mesageArgs));
             }
         }
 
@@ -262,20 +261,17 @@ namespace IntegrityCheck
         {
             if (Double.IsNaN(d))
             {
-                string text = Integrity.getMessage("NaN", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("NaN", mesageArgs));
             }
 
             if (Double.IsPositiveInfinity(d))
             {
-                string text = Integrity.getMessage("+Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("+Infinity", mesageArgs));
             }
 
             if (Double.IsNegativeInfinity(d))
             {
-                string text = Integrity.getMessage("-Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("-Infinity", mesageArgs));
             }
         }
 
@@ -292,22 +288,20 @@ namespace IntegrityCheck
             {
                 throw new NullReferenceException(Integrity.getMessage(nullPointerDefaultMessage, mesageArgs));
             }
-            
-            if (Double.IsNaN((double) d)) {
-                string text = Integrity.getMessage("NaN", mesageArgs);
-                throw new InvalidOperationException(text);
+
+            double nonNullD = (double)d;
+            if (Double.IsNaN(nonNullD)) {
+                throw new InvalidOperationException(Integrity.getMessage("NaN", mesageArgs));
             }
 
-            if (Double.IsPositiveInfinity((double) d)) 
+            if (Double.IsPositiveInfinity(nonNullD)) 
             {
-                string text = Integrity.getMessage("+Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("+Infinity", mesageArgs));
             }
 
-            if (Double.IsNegativeInfinity((double) d))
+            if (Double.IsNegativeInfinity(nonNullD))
             {
-                string text = Integrity.getMessage("-Infinity", mesageArgs);
-                throw new InvalidOperationException(text);
+                throw new InvalidOperationException(Integrity.getMessage("-Infinity", mesageArgs));
             }
         }
 
@@ -320,6 +314,51 @@ namespace IntegrityCheck
         public static void CheckIsValidNumberOrNull(double? d, params object[] mesageArgs)
         {
             if(d == null)
+            {
+                return;
+            }
+            CheckIsValidNumber(d, mesageArgs);
+        }
+
+        /// <summary>
+        /// Checks whether a number is NaN, +Infinity, -Infinity. If so, raises an exception with a default message or one built from passed in message params
+        /// </summary>
+        /// <param name="d">The number to check for NaN, or +/-Infinity.</param>
+        /// <param name="mesageArgs">See the documentation for deferredStringBuilder to see how the message is built.</param>
+        /// <exception cref="InvalidOperationException">Raised if d is NaN, +/-Infinity</exception>
+        public static void CheckIsValidNumberOrNull(double d, params object[] mesageArgs)
+        {
+            if (d == null)
+            {
+                return;
+            }
+            CheckIsValidNumber(d, mesageArgs);
+        }
+
+        /// <summary>
+        /// Checks whether a number is NaN, +Infinity, -Infinity. If so, raises an exception with a default message or one built from passed in message params
+        /// </summary>
+        /// <param name="d">The number to check for NaN, or +/-Infinity.</param>
+        /// <param name="mesageArgs">See the documentation for deferredStringBuilder to see how the message is built.</param>
+        /// <exception cref="InvalidOperationException">Raised if d is NaN, +/-Infinity</exception>
+        public static void CheckIsValidNumberOrNull(float? d, params object[] mesageArgs)
+        {
+            if (d == null)
+            {
+                return;
+            }
+            CheckIsValidNumber(d, mesageArgs);
+        }
+
+        /// <summary>
+        /// Checks whether a number is NaN, +Infinity, -Infinity. If so, raises an exception with a default message or one built from passed in message params
+        /// </summary>
+        /// <param name="d">The number to check for NaN, or +/-Infinity.</param>
+        /// <param name="mesageArgs">See the documentation for deferredStringBuilder to see how the message is built.</param>
+        /// <exception cref="InvalidOperationException">Raised if d is NaN, +/-Infinity</exception>
+        public static void CheckIsValidNumberOrNull(float d, params object[] mesageArgs)
+        {
+            if (d == null)
             {
                 return;
             }

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 namespace IntegrityCheck
 {
@@ -12,7 +9,7 @@ namespace IntegrityCheck
     {
         public static int truncationLength = 100;
         public static int depthLimit = 10;
-        public string VERSION = "1.3.3";
+        public string VERSION = "1.3.4";
 
         /// <summary>
         /// General default message. This can be changed if you want a different message.

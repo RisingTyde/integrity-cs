@@ -9,7 +9,7 @@ namespace IntegrityCheck
     {
         public static int truncationLength = 100;
         public static int depthLimit = 10;
-        public string VERSION = "1.3.4";
+        public string VERSION = "1.3.5";
 
         /// <summary>
         /// General default message. This can be changed if you want a different message.
@@ -306,13 +306,19 @@ namespace IntegrityCheck
         /// for example ["a string", 1, 1.1]
         /// 
         /// an object which is not a primitive, does not implement IEnumberable, and appears to not override toString will be formated in json style 
-        /// {field1: "a value",anArray: [ 1, 2]}
+        /// {field1:"a value",anArray:[ 1, 2]}
         /// note that only public fields and properties are represented
         /// 
         /// </remarks>
         public static string deferredStringbuilder(params object[] messageArgs)
         {
-            return getMessage("", messageArgs);
+            try {
+                return getMessage("", messageArgs);
+            } 
+            catch(Exception e) // failsafe
+            {
+                return "<< Error assembling error message: " + e.Message + " >>";
+            }
         }
         private static string getMessage(string defaultMessage, params object[] mesageArgs)
         {
@@ -406,16 +412,16 @@ namespace IntegrityCheck
             return !toStr.Equals(typeName);
         }
 
-        private static string getBasicToStringRep(object obj, Boolean rawString)
+        private static string getBasicToStringRep(object obj, Boolean dontAddQuotesToString)
         {
-            if (obj.GetType() == typeof(string) && !rawString)
+            if (obj.GetType() == typeof(string) && !dontAddQuotesToString)
             {
                 return "\"" + obj.ToString() + "\"";
             }
             return obj.ToString();
         }
 
-        private static string objAsString(object obj, bool rawString, int depth)
+        private static string objAsString(object obj, bool dontAddQuotesToString, int depth)
         {
             /*
              * There is a possibility that an object will contain circular references which are hard to detect. If the depth
@@ -426,15 +432,13 @@ namespace IntegrityCheck
                 return "<<depth " + depth + " exceeded>>";
             }
 
-            Type type = obj.GetType();
-
             if(hasSensibleToString(obj))
             {
-                return getBasicToStringRep(obj, rawString);
+                return getBasicToStringRep(obj, dontAddQuotesToString);
             }
 
-            bool isEnumerable = obj is IEnumerable; // note string is enumerable but wont get here as string will be already returned
-            string json = "";
+            bool isEnumerable = obj is IEnumerable; // note string is enumerable but wont get here as string will be already returned because of 'hasSensibleToString' above
+            string json;
 
             if (isEnumerable)
             {
@@ -453,7 +457,7 @@ namespace IntegrityCheck
                     {
                         first = false;
                     }
-                    json += objAsString(item, false, depth+1);
+                    json += objAsString(item, /*dontAddQuotesToString*/ false, depth+1);
                 }
 
                 json += "]";
@@ -462,44 +466,61 @@ namespace IntegrityCheck
             {
                 json = "{";
 
-                FieldInfo[] fieldInfo = type.GetFields();
-                PropertyInfo[] properties = type.GetProperties();
-                List<(string, string)> list = new List<(string, string)>();
+                Type objType = obj.GetType();
+                FieldInfo[] fieldInfo = objType.GetFields();
+                PropertyInfo[] properties = objType.GetProperties();
+                List<(string, string)> propertiesAndFieldsList = new List<(string, string)>();
+
                 for (int i = 0; i < fieldInfo.Length; i++)
                 {
                     FieldInfo f = fieldInfo[i];
-                    object value = f.GetValue(obj);
-                    if(value.GetType() != obj.GetType()) // try and avoid infinite recursion
+                    object fieldValue = f.GetValue(obj);
+
+                    if (fieldValue == null)
                     {
-                        list.Add((f.Name, objAsString(value, rawString, depth+1)));
-                    } 
+                        propertiesAndFieldsList.Add((f.Name, "null"));
+                    }
                     else
                     {
-                        list.Add((f.Name, "<" + value.GetType().Name + ">"));
+                        if (fieldValue.GetType() != obj.GetType()) // try and avoid infinite recursion
+                        {
+                            propertiesAndFieldsList.Add((f.Name, objAsString(fieldValue, /*dontAddQuotesToString*/ false, depth + 1)));
+                        }
+                        else
+                        {
+                            propertiesAndFieldsList.Add((f.Name, "<" + fieldValue.GetType().Name + ">"));
+                        }
                     }
                 }
                 for (int i = 0; i < properties.Length; i++)
                 {
                     PropertyInfo p = properties[i];
-                    object value = p.GetValue(obj);
+                    object propertyValue = p.GetValue(obj);
 
-                    if (value.GetType() != obj.GetType()) // try and avoid infinite recursion
+                    if(propertyValue == null)
                     {
-                        list.Add((p.Name, objAsString(value, rawString, depth+1)));
+                        propertiesAndFieldsList.Add((p.Name, "null"));
                     }
                     else
                     {
-                        list.Add((p.Name, "<" + value.GetType().Name + ">"));
+                        if (propertyValue.GetType() != obj.GetType()) // try and avoid infinite recursion
+                        {
+                            propertiesAndFieldsList.Add((p.Name, objAsString(propertyValue, /*dontAddQuotesToString*/ false, depth+1)));
+                        }
+                        else
+                        {
+                            propertiesAndFieldsList.Add((p.Name, "<" + propertyValue.GetType().Name + ">"));
+                        }
                     }
                 }
 
-                for (int i = 0; i < list.Count; i++)
+                for (int i = 0; i < propertiesAndFieldsList.Count; i++)
                 {
                     if (i != 0)
                     {
                         json = json + ",";
                     }
-                    json += "\"" + list[i].Item1 + "\":" + list[i].Item2;
+                    json += "\"" + propertiesAndFieldsList[i].Item1 + "\":" + propertiesAndFieldsList[i].Item2;
                 }
 
                 json += "}";

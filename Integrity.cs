@@ -9,7 +9,7 @@ namespace IntegrityCheck
     {
         public static int truncationLength = 100;
         public static int depthLimit = 10;
-        public string VERSION = "1.3.5";
+        public string VERSION = "1.3.6";
 
         /// <summary>
         /// General default message. This can be changed if you want a different message.
@@ -355,6 +355,11 @@ namespace IntegrityCheck
 
         private static string itemAsStringValue(object item, Boolean surroundStringInQuotes = false)
         {
+            if(item == null)
+            {
+                return "null";
+            }
+
             string rawItem = objAsString(item, true, 0);
 
             bool truncated = false;
@@ -387,6 +392,11 @@ namespace IntegrityCheck
 
         private static Boolean hasSensibleToString(object obj)
         {
+            if(obj == null)
+            {
+                return false;
+            }
+
             Type type = obj.GetType();
 
             if (type.IsPrimitive)
@@ -430,6 +440,11 @@ namespace IntegrityCheck
             if(depth > depthLimit)
             {
                 return "<<depth " + depth + " exceeded>>";
+            }
+
+            if(obj == null)
+            {
+                return "null";
             }
 
             if(hasSensibleToString(obj))
